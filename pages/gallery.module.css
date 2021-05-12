@@ -1,0 +1,46 @@
+.toolbarButton {
+    margin: 0 16px;
+}
+
+.gridContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    overflow: hidden;
+    padding-left: 32px;
+    padding-right: 32px;
+    border-top: 1px solid #ccc;
+    flex-grow: 1;
+}
+
+.gridPile {
+    position: relative;
+    margin: 16px;
+    width: 320px;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.gridInfo {
+    width: 100%;
+    background-color: white;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    border-top: 1px solid #ccc;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80px;
+}
+
+.gridSelected {
+    background-color: #e7f0fd;
+}
