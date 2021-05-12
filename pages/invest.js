@@ -10,6 +10,7 @@ import Carousel from 'react-material-ui-carousel'
 import Button from '@material-ui/core/Button';
 import Link from 'next/link';
 import clxs from 'clsx';
+import Box from '@material-ui/core/Box';
 
 class Invest extends Component {
   constructor(props) {
@@ -26,8 +27,7 @@ class Invest extends Component {
     const {router} = this.props;
     console.log(router.query);
     let pid = router.query.pitchId || 'latest';
-    getPitch(pid).then(resp => {
-      console.log(resp);
+    getPitch(pid, 'invest').then(resp => {
       if (resp.data && resp.data.payload) {
         this.setState({
           loading: false,
@@ -86,24 +86,26 @@ class Invest extends Component {
                   </a>
                 </Link>
               </div>
-              <div className={styles.thumbsContainer}>
-                {
-                  pitch.thumbs.map((thumb, idx) => (
-                    <div
-                      key={thumb}
-                      className={clxs({
-                          [styles.thumb]: true,
-                          [styles.thumbSelected]: selectedThumb == idx,
-                        })
-                      }
-                      onClick={() => this.onChangeIdx(idx)}
-                      ref={r => thumbRef[idx] = r}
-                    >
-                      <img src={thumb} className={styles.thumbImg}/>
-                    </div>
-                  ))
-                }
-              </div>
+              <Box display={{ xs: 'none', sm: 'none', md: 'block'}}>
+                <div className={styles.thumbsContainer}>
+                  {
+                    pitch.thumbs.map((thumb, idx) => (
+                      <div
+                        key={thumb}
+                        className={clxs({
+                            [styles.thumb]: true,
+                            [styles.thumbSelected]: selectedThumb == idx,
+                          })
+                        }
+                        onClick={() => this.onChangeIdx(idx)}
+                        ref={r => thumbRef[idx] = r}
+                      >
+                        <img src={thumb} className={styles.thumbImg}/>
+                      </div>
+                    ))
+                  }
+                </div>
+              </Box>
             </div>
           }
           

@@ -36,7 +36,6 @@ function uploadAPI(path, file, onUploadPct = null) {
   const config = {
     onUploadProgress: function(progressEvent) {
       var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-      console.log(percentCompleted)
       onUploadPct && onUploadPct(percentCompleted);
     }
   }
@@ -45,15 +44,13 @@ function uploadAPI(path, file, onUploadPct = null) {
   data.append('file', file);
 
   return axios.post(API_PREFIX + path, data, config)
-    .then(res => console.log(res))
-    .catch(err => console.log(err))
 }
 
 
-export const uploadFile = (file) => uploadAPI('/pitches', file);
+export const uploadFile = (file, cb) => uploadAPI('/pitches', file, cb);
 
-export const getAllPitches = () => callAPI('/pitches', 'get');
+export const getAllPitches = (page) => callAPI(`/pitches?page=${page}`, 'get');
 
 export const deletePitch = (pid) => callAPI(`/pitches/${pid}`, 'delete');
 
-export const getPitch = pid => callAPI(`/pitches/${pid}`, 'get');
+export const getPitch = (pid, view) => callAPI(`/pitches/${pid}?view=${view}`, 'get');

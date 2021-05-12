@@ -17,12 +17,15 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import PitchPile from '../components/pitchPile';
+import Pagination from '@material-ui/lab/Pagination';
+
+ 
 
 
 import Toolbar from '@material-ui/core/Toolbar';
-import clsx from 'clsx';
-import { Typography } from '@material-ui/core';
-import {getAllPitches, uploadFile, deletePitch} from '../utils/apis';
+import {getAllPitches, deletePitch} from '../utils/apis';
+import {PITCH_STATUS} from '../utils/constants';
 
 class Gallery extends Component {
   constructor(props) {
@@ -35,31 +38,82 @@ class Gallery extends Component {
       pitches: [],
       lastClickTs: 0,
       openDelete: false,
+      page: 1,
+      totalPages: 1,
     }
+    this.loadingPitches = false;
   }
 
   onFileChange = event => {
     // Update the state
+    const {pitches} = this.state;
+    const newPitches = [...pitches];
+    const newId = -Date.now();
     const file = event.target.files[0];
-    uploadFile(file);
+    newPitches.unshift({id: newId, status: PITCH_STATUS.uploading, file: file});
+    this.setState({
+      pitches: newPitches,
+    })
+    event.target.value = null;
+    this.gridContainer.scrollTo(0,0);
   };
 
-  componentDidMount() {
-    getAllPitches().then(resp => {
-      console.log('getAllPitches', resp);
-      this.setState({
-        pitches: resp.data.payload.items,
-        loading: false,
-      })
-    }).catch(error => {
-
-    })
+  onUpdatePitch = (ori, updated) => {
+    const {pitches} = this.state;
+    const cleanPitches = [...pitches];
+    for(let i = 0; i < cleanPitches.length; i++) {
+      if (cleanPitches[i].id === ori.id) {
+        cleanPitches.splice(i, 1, updated);
+        this.setState({
+          pitches: cleanPitches
+        })
+        break;
+      }
+    }
   }
 
-  onSelectFile = (e, f) => {
+  nextPage = () => {
+    if (!this.loadingPitches) {
+      const {page, totalPages} = this.state;
+      if (page > totalPages) {
+        return;
+      }
+      this.loadingPitches = true;
+      getAllPitches(page).then(resp => {
+        const {pitches} = this.state;
+        const newPitches = [...resp.data.payload.items];
+        for(let i = pitches.length - 1; i >= 0; i--) {
+          let hasDup = false;
+          for (const item of resp.data.payload.items) {
+            if (item.id === pitches[i].id) {
+              hasDup = true;
+              break;
+            }
+          }
+          if (!hasDup) {
+            newPitches.unshift(pitches[i]);
+          }
+        }
+        this.setState({
+          pitches: newPitches,
+          loading: false,
+          totalPages: resp.data.payload.total_pages,
+          page: page + 1,
+        }, () => {
+          this.loadingPitches = false;
+        })
+      }).catch(error => {
+        this.loadingPitches = false;
+      })
+    }
+  }
+
+  componentDidMount() {
+    this.nextPage();
+  }
+
+  onSelectFile = (f) => {
     const {selectedFile, lastClickTs} = this.state;
-    e.preventDefault();
-    e.stopPropagation();
     const nowTs = Date.now();
     if (selectedFile && selectedFile.id === f.id) {
       if (nowTs - lastClickTs < 500) {
@@ -108,8 +162,21 @@ class Gallery extends Component {
     this.setState({openDelete: false});
   }
 
+  onGridScroll = (e) => {
+    if (e.target.scrollTop + e.target.offsetHeight >= e.target.scrollHeight - 300) {
+      this.nextPage();
+    }
+  }
+
   render() {
-    const {loading, pitches, selectedFile, openDelete} = this.state;
+    const {
+      loading,
+      pitches,
+      selectedFile,
+      openDelete,
+      page,
+      totalPages,
+    } = this.state;
     return (
       <Layout>
         <Head>
@@ -127,7 +194,7 @@ class Gallery extends Component {
                 UPLOAD
                 <input
                   type="file"
-                  accept=".pdf,.pptx,application/pdf,application/vnd.ms-powerpoint"
+                  accept=".pdf,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint"
                   hidden
                   onChange={this.onFileChange}
                 />
@@ -160,25 +227,16 @@ class Gallery extends Component {
             loading ?
             <Spinner />
             :
-            <div className={Styles.gridContainer} onClick={this.deselect}>
+            <div className={Styles.gridContainer} onClick={this.deselect} onScroll={this.onGridScroll} ref={r => this.gridContainer = r}>
               {
                 pitches.map(pitch => (
-                  <div
+                  <PitchPile
                     key={pitch.id}
-                    className={Styles.gridPile} 
-                    onClick={(e) => this.onSelectFile(e, pitch)}
-                  >
-                    <img src={pitch.thumb_url} />
-                    <div className={clsx({
-                        [Styles.gridInfo]: true,
-                        [Styles.gridSelected]: selectedFile && selectedFile.id === pitch.id,
-                      })}
-                    >
-                      <Typography variant="body1" align="center">
-                        {pitch.filename}
-                      </Typography>
-                    </div>
-                  </div>
+                    onSelectFile={this.onSelectFile}
+                    pitch={pitch}
+                    onUpdatePitch={this.onUpdatePitch}
+                    selected={selectedFile && selectedFile.id === pitch.id}
+                  />
                 ))
               }
             </div>

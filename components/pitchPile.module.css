@@ -1,0 +1,47 @@
+
+.gridPile {
+    position: relative;
+    margin: 16px;
+    width: 320px;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.loadingGrid {
+    margin: 16px;
+    width: 320px;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+    padding: 60px 0;
+    justify-content: space-around;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.gridInfo {
+    width: 100%;
+    background-color: white;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    border-top: 1px solid #ccc;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80px;
+    padding: 4px 16px;
+}
+
+.gridSelected {
+    background-color: #e7f0fd;
+}
