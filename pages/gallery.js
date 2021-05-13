@@ -18,10 +18,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import PitchPile from '../components/pitchPile';
-import Pagination from '@material-ui/lab/Pagination';
-
- 
-
+import { withSnackbar } from 'notistack';
 
 import Toolbar from '@material-ui/core/Toolbar';
 import {getAllPitches, deletePitch} from '../utils/apis';
@@ -101,9 +98,12 @@ class Gallery extends Component {
           page: page + 1,
         }, () => {
           this.loadingPitches = false;
+          this.onGridScroll();
         })
       }).catch(error => {
         this.loadingPitches = false;
+        const {enqueueSnackbar} = this.props;
+        enqueueSnackbar(error.message, {variant: 'error'});
       })
     }
   }
@@ -155,6 +155,8 @@ class Gallery extends Component {
         pitches: newPitches,
       })
     }).catch(error => {
+      const {enqueueSnackbar} = this.props;
+      enqueueSnackbar(error.message, {variant: 'error'});
     })
   }
 
@@ -162,8 +164,8 @@ class Gallery extends Component {
     this.setState({openDelete: false});
   }
 
-  onGridScroll = (e) => {
-    if (e.target.scrollTop + e.target.offsetHeight >= e.target.scrollHeight - 300) {
+  onGridScroll = () => {
+    if (this.gridContainer.scrollTop + this.gridContainer.offsetHeight >= this.gridContainer.scrollHeight - 300) {
       this.nextPage();
     }
   }
@@ -266,4 +268,4 @@ class Gallery extends Component {
   }
 }
 
-export default withRouter(Gallery);
+export default withRouter(withSnackbar(Gallery));

@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button';
 import Link from 'next/link';
 import clxs from 'clsx';
 import Box from '@material-ui/core/Box';
-
+import { withSnackbar } from 'notistack';
 class Invest extends Component {
   constructor(props) {
     super(props);
@@ -35,7 +35,8 @@ class Invest extends Component {
         })
       }
     }).catch(error => {
-
+      const {enqueueSnackbar} = this.props;
+      enqueueSnackbar(error.message, {variant: 'error'});
     })
 
   }
@@ -115,4 +116,4 @@ class Invest extends Component {
   }
 }
 
-export default withRouter(Invest);
+export default withSnackbar(withRouter(Invest));

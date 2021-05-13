@@ -7,7 +7,7 @@ import { Typography } from '@material-ui/core';
 import {uploadFile, getPitch} from '../utils/apis';
 import styles from './pitchPile.module.css';
 import {PITCH_STATUS, PULL_INTERVAL} from '../utils/constants';
-
+import { withSnackbar } from 'notistack';
 class PitchPile extends Component {
   constructor(props) {
     super(props);
@@ -27,7 +27,8 @@ class PitchPile extends Component {
         this.timeout = setTimeout(this.pullPitch, PULL_INTERVAL);
       }
     }).catch(error => {
-
+      const {enqueueSnackbar} = this.props;
+      enqueueSnackbar(error.message, {variant: 'error'});
     })
   }
 
@@ -44,7 +45,8 @@ class PitchPile extends Component {
         const {onUpdatePitch} = this.props;
         onUpdatePitch(pitch, resp.data.payload);
       }).catch(error => {
-  
+        const {enqueueSnackbar} = this.props;
+        enqueueSnackbar(error.message, {variant: 'error'});
       });
     } else if (pitch.status !== PITCH_STATUS.done) {
       this.timeout = setTimeout(this.pullPitch, PULL_INTERVAL);
@@ -99,5 +101,5 @@ class PitchPile extends Component {
   }
 }
 
-export default PitchPile;
+export default withSnackbar(PitchPile);
 
