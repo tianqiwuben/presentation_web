@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_PREFIX = 'http://localhost:3003';
+const API_PREFIX = 'http://54.87.32.174:3003';
 
 function getAPIHeaders() {
   return ({
